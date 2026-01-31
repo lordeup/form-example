@@ -1,5 +1,4 @@
 import { useState } from "react";
-import "./App.css";
 import {
     Button,
     Col,
@@ -34,12 +33,12 @@ interface IFormData {
 
 const MOCK_FORM_DATA: IFormData = {
     fullName: "Волков Василий Валерьевич",
-    birthDate: dayjs().subtract(25, "year"),
+    birthDate: dayjs().subtract(42, "year"),
     experience: 5,
     position: PositionsType.TechnicalSupport,
-    login: "user1985",
+    login: "user1984",
     password: "qwerty123",
-    email: "user1985@gmail.com",
+    email: "user1984@gmail.com",
     phone: "79221110500",
     note: "Значимость этих проблем настолько очевидна, что постоянный количественный рост и сфера нашей активности позволяет оценить значение форм воздействия",
 };
@@ -97,7 +96,7 @@ export const App = () => {
                         { max: 100, message: "Максимум 100 символов" },
                     ]}
                 >
-                    <Input maxLength={100} />
+                    <Input />
                 </Form.Item>
 
                 <Row gutter={16}>
@@ -221,15 +220,18 @@ export const App = () => {
                 <>
                     <Button
                         type={"primary"}
+                        size={"large"}
                         onClick={() => form.submit()}
                         style={{ marginRight: 16 }}
                     >
                         Сохранить
                     </Button>
-                    <Button onClick={onCancel}>Отмена</Button>
+                    <Button size={"large"} onClick={onCancel}>
+                        Отмена
+                    </Button>
                 </>
             ) : (
-                <Button type={"primary"} onClick={onStartEdit}>
+                <Button type={"primary"} size={"large"} onClick={onStartEdit}>
                     Изменить
                 </Button>
             )}
