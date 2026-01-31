@@ -1,6 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./App.css";
-import { Form, Input, DatePicker, Select, Button, Row, Col } from "antd";
+import {
+    Button,
+    Col,
+    DatePicker,
+    Form,
+    Input,
+    InputNumber,
+    Row,
+    Select,
+} from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import type { RuleObject } from "@rc-component/form/lib/interface";
@@ -38,35 +47,34 @@ const MOCK_FORM_DATA: IFormData = {
 export const App = () => {
     const [form] = Form.useForm<IFormData>();
     const [isEditMode, setEditMode] = useState(false);
-    const [formData, setFormData] = useState<IFormData>(MOCK_FORM_DATA);
-
-    useEffect(() => {
-        form.setFieldsValue(formData);
-    }, []);
 
     const onStartEdit = () => {
         setEditMode(true);
     };
 
-    const onCancelEdit = () => {
-        setEditMode(false);
-    };
-
     const onFinish = (values: IFormData) => {
         console.log("onFinish", values);
-        setFormData(values);
-        onCancelEdit();
-        form.setFieldsValue(values);
+        setEditMode(false);
     };
 
     const onCancel = () => {
         form.resetFields();
-        form.setFieldsValue(formData);
-        onCancelEdit();
+        setEditMode(false);
     };
 
     const validateExperience = (rule: RuleObject, value: number) => {
-        console.warn("value", value);
+        const birthDate: Dayjs = form.getFieldValue("birthDate");
+        if (!value || !birthDate?.isValid()) {
+            return Promise.resolve();
+        }
+
+        const age = dayjs().diff(birthDate, "year");
+        if (value > age) {
+            return Promise.reject(
+                `Стаж не должен превышать возраст (${age} лет)`,
+            );
+        }
+
         return Promise.resolve();
     };
 
@@ -79,8 +87,7 @@ export const App = () => {
                 onFinish={onFinish}
                 layout={"vertical"}
                 size={"large"}
-                // initialValues={{ remember: true }}
-                // style={{ maxWidth: 600, width: "100%" }}
+                initialValues={MOCK_FORM_DATA}
             >
                 <Form.Item
                     name={"fullName"}
@@ -104,22 +111,24 @@ export const App = () => {
                                     message: "Обязательное поле",
                                 },
                             ]}
-                            dependencies={["experience"]}
                         >
-                            <DatePicker style={{ width: "100%" }} />
+                            <DatePicker
+                                style={{ width: "100%" }}
+                                disabledDate={(current) => {
+                                    return current && current > dayjs();
+                                }}
+                            />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item
                             name={"experience"}
                             label={"Стаж (лет)"}
-                            rules={[
-                                { max: 100, message: "Максимум 100 лет" },
-                                { validator: validateExperience },
-                            ]}
+                            rules={[{ validator: validateExperience }]}
+                            dependencies={["birthDate"]}
                         >
-                            <Input
-                                type={"number"}
+                            <InputNumber
+                                min={0}
                                 max={100}
                                 style={{ width: "100%" }}
                             />
@@ -150,16 +159,29 @@ export const App = () => {
                                     required: true,
                                     message: "Обязательное поле",
                                 },
-                                { min: 3, message: "Минимум 3 символа" },
-                                { max: 20, message: "Максимум 20 символов" },
+                                {
+                                    min: 3,
+                                    max: 20,
+                                    message: "Логин 3-20 символов",
+                                },
                             ]}
                         >
                             <Input />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item name={"password"} label={"Пароль"}>
-                            <Input.Password maxLength={12} />
+                        <Form.Item
+                            name={"password"}
+                            label={"Пароль"}
+                            rules={[
+                                {
+                                    min: 6,
+                                    max: 12,
+                                    message: "Пароль 6-12 символов",
+                                },
+                            ]}
+                        >
+                            <Input.Password />
                         </Form.Item>
                     </Col>
                 </Row>
