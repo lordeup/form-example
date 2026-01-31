@@ -9,8 +9,7 @@ import {
     Row,
     Select,
 } from "antd";
-import type { Dayjs } from "dayjs";
-import dayjs from "dayjs";
+import dayjs, { type Dayjs } from "dayjs";
 import type { RuleObject } from "@rc-component/form/lib/interface";
 
 enum PositionsType {
@@ -18,6 +17,11 @@ enum PositionsType {
     AccountManager = "Менеджер по работе с клиентами",
     TechnicalSupport = "Специалист тех. поддержки",
 }
+
+const POSITION_OPTIONS = Object.values(PositionsType).map((value) => ({
+    value,
+    label: value,
+}));
 
 interface IFormData {
     fullName: string;
@@ -33,7 +37,7 @@ interface IFormData {
 
 const MOCK_FORM_DATA: IFormData = {
     fullName: "Волков Василий Валерьевич",
-    birthDate: dayjs().subtract(42, "year"),
+    birthDate: dayjs("1984-03-25"),
     experience: 5,
     position: PositionsType.TechnicalSupport,
     login: "user1984",
@@ -45,14 +49,14 @@ const MOCK_FORM_DATA: IFormData = {
 
 export const App = () => {
     const [form] = Form.useForm<IFormData>();
-    const [isEditMode, setEditMode] = useState(false);
+    const [isEditMode, setEditMode] = useState<boolean>(false);
 
     const onStartEdit = () => {
         setEditMode(true);
     };
 
-    const onFinish = (values: IFormData) => {
-        console.log("onFinish", values);
+    const onFinish = (formData: IFormData) => {
+        console.log("onFinish", formData);
         setEditMode(false);
     };
 
@@ -140,12 +144,7 @@ export const App = () => {
                     label={"Должность"}
                     rules={[{ required: true, message: "Обязательное поле" }]}
                 >
-                    <Select
-                        options={Object.values(PositionsType).map((value) => ({
-                            value,
-                            label: value,
-                        }))}
-                    />
+                    <Select options={POSITION_OPTIONS} />
                 </Form.Item>
 
                 <Row gutter={16}>
